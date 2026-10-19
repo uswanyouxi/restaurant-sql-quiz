@@ -115,7 +115,7 @@ Database connection credentials are configured using GitHub Actions Secrets rath
 
 The application is intended to be deployed using Streamlit Community Cloud.
 
-Deployment URL: To be added after deployment.
+Deployment URL: https://restaurant-sql-quiz-8agvlli4ykngs9sc2piica.streamlit.app
 
 ## Notes
 
