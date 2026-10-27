@@ -241,6 +241,12 @@ if not questions:
     st.stop()
 
 
+from rag.ui import render_rag_section
+
+# AI RAG feature (the original SQL Quiz remains below)
+render_rag_section(questions)
+
+
 # ============================================================
 # Select a question
 # ============================================================

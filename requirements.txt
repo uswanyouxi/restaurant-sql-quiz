@@ -67,3 +67,5 @@ watchdog==6.0.0
 websockets==15.0.1
 yarl==1.25.1
 pglast
+chromadb>=1.0,<2.0
+google-genai>=1.0,<3.0

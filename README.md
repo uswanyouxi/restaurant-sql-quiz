@@ -122,3 +122,88 @@ Deployment URL: https://restaurant-sql-quiz-8agvlli4ykngs9sc2piica.streamlit.app
 - Never commit `.env` or database passwords.
 - Use a restricted PostgreSQL user for student SQL queries.
 - Supabase authentication is required before executing or saving SQL.
+
+## Week 8: RAG-Powered Text-to-SQL
+
+This extension uses a real Retrieval-Augmented Generation pipeline:
+
+1. User chooses or edits a natural-language restaurant SQL question.
+2. ChromaDB persists and retrieves relevant embedded schema documentation,
+   business rules and SQL few-shot examples with vector similarity search.
+3. Google Gemini AI API receives only the question plus retrieved Chroma context
+   and generates PostgreSQL SQL code.
+4. SQL is automatically evaluated by the existing restricted read-only runner.
+5. For an unmodified quiz question, the generated query's result is compared
+   with a trusted reference SQL query (without accessing protected answers).
+
+### Technology and architecture
+
+- Database: Supabase PostgreSQL (restaurants, menu_items, orders).
+- Vector store: ChromaDB PersistentClient; 10 embedded knowledge documents
+  in rag/knowledge.py; collection.query() performs real vector retrieval.
+- AI API: Google Gemini via google-genai; default model gemini-2.5-flash.
+- App: original Streamlit quiz plus a new RAG generator section.
+- Security: existing AST query validation, allowlisted tables/functions, and
+  a read-only PostgreSQL role with a timeout and a 100-row cap.
+- Bonus: automatic SQL execution/result table and reference result validation
+  (using the same restricted read-only runner; no elevated answer access).
+
+### Setup and local run
+
+Use Python 3.11. Follow original Supabase setup instructions above,
+activate your local virtual environment, then install dependencies:
+
+    python -m pip install -r requirements.txt
+
+Create a Gemini key in Google AI Studio: https://aistudio.google.com/app/apikey
+
+Keep it private in your local .env file (never in GitHub):
+
+    GEMINI_API_KEY=YOUR_PRIVATE_KEY
+    GEMINI_MODEL=gemini-2.5-flash
+
+Run the tests and the real vector retrieval smoke test:
+
+    python -m pytest tests/ -v
+    python scripts/check_rag_index.py
+
+Start the app:
+
+    python -m streamlit run app.py
+
+Sign in with the original account. In the RAG section choose a quiz
+question, click Generate SQL with RAG, inspect the retrieved knowledge and
+generated SQL, and review the automatic SQL execution and validation.
+
+### Deploying to Streamlit Cloud
+
+The original deployment URL remains:
+https://restaurant-sql-quiz-8agvlli4ykngs9sc2piica.streamlit.app/
+
+This is still the original main-branch deployment until Week 8 is tested
+and merged. After verifying this development branch, set GEMINI_API_KEY
+under Streamlit Cloud app Settings > Secrets. Keep existing Supabase secrets.
+Then merge week8-rag to main and verify the deployed app in an incognito browser.
+Cloud storage is ephemeral, so Chroma rebuilds its index from source on startup.
+Its first embedding-model initialization may require network access and time.
+
+### Screenshots required for submission
+
+Capture REAL screenshots from your running application and add them to
+screenshots/ and embed them below before submitting:
+
+- rag_basic.png: natural-language question, generated SQL, retrieved context.
+- rag_bonus.png: automatically executed SQL, result table, validation status.
+
+Do not commit .env, passwords, Gemini keys or tokens to this repository.
+A student/grader should be able to open the deployed app, log in,
+ask a quiz question and receive AI-generated SQL code.
+
+### Testing
+
+- Existing 30 SQL security tests are preserved.
+- Additional tests/test_rag.py verifies knowledge, grounded prompts and
+  bonus result validation without relying on live API credentials.
+- scripts/check_rag_index.py verifies actual Chroma vector storage and query.
+- Real online end-to-end validation and screenshots are still needed.
+
