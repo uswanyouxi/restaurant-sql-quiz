@@ -7,3 +7,6 @@ __pycache__/
 .pytest_cache/
 *.pyc
 .streamlit/secrets.toml
+.chroma/
+.rag_bundle/
+.rag_backups/

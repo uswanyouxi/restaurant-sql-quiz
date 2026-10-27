@@ -241,6 +241,10 @@ if not questions:
     st.stop()
 
 
+from rag.ui import render_rag_section
+
+render_rag_section(questions)
+
 # ============================================================
 # Select a question
 # ============================================================
