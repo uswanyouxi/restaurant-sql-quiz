@@ -2,7 +2,7 @@
 import pandas as pd
 import streamlit as st
 
-from rag.generator import generate_sql, get_api_key
+from rag.generator import generate_sql, get_api_key, format_sql_for_display
 from rag.vector_store import initialize_index, retrieve_context
 from rag.validation import validate_against_reference
 from sql_runner import execute_quiz_sql
@@ -72,12 +72,19 @@ def render_rag_section(questions):
                     record["execution_error"] = "Query or validation failed; check generated SQL and database access."
                 st.session_state["rag_last_output"] = record
             except Exception as error:
-                st.error(f"RAG request failed: {type(error).__name__}: {error}")
+                # Keep API keys, model responses and connection details out of the UI.
+                st.error(
+                    f"RAG request failed ({type(error).__name__}). "
+                    "Check Gemini API access, model configuration and ChromaDB."
+                )
 
     record = st.session_state.get("rag_last_output")
+    if record and record["question_id"] != selected["id"]:
+        st.info("Question changed: click Generate SQL with RAG to see its output.")
+        record = None
     if record:
         st.subheader("AI-generated SQL")
-        st.code(record["sql"], language="sql")
+        st.code(format_sql_for_display(record["sql"]), language="sql", wrap_lines=True)
         st.success("Full pipeline completed: question → vector retrieval → LLM → SQL")
         with st.expander("Retrieved knowledge from ChromaDB (actual vector search)"):
             for index, item in enumerate(record["retrieved"], 1):

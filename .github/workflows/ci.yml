@@ -34,7 +34,7 @@ jobs:
 
       - name: Check Python syntax
         run: |
-          python -m compileall -q app.py auth.py database.py quiz.py sql_runner.py sql_security.py submissions.py
+          python -m compileall -q app.py auth.py database.py quiz.py sql_runner.py sql_security.py submissions.py rag scripts/check_rag_index.py scripts/check_reference_queries.py
 
   database-check:
     name: Supabase Database Check

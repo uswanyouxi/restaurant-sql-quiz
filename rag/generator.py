@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+from sqlparse import format as sqlparse_format
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
@@ -73,3 +74,10 @@ def generate_sql(question, retrieved, api_key=None, model=None):
     if not sql:
         raise ValueError("The AI returned no SQL. Please try again.")
     return sql
+
+
+def format_sql_for_display(sql: str) -> str:
+    """Format SQL for the Streamlit code block without changing executed SQL."""
+    return sqlparse_format(
+        sql, keyword_case="upper", reindent=True, indent_width=4
+    )

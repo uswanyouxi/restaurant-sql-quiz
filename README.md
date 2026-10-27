@@ -134,9 +134,10 @@ features remain unchanged.
 
 [Deployed Streamlit website](https://restaurant-sql-quiz-8agvlli4ykngs9sc2piica.streamlit.app/)
 
-**Note:** The deployed RAG feature is available only after merging this branch into
-`main`, adding its `GEMINI_API_KEY` to the Streamlit application's secrets, and
-redeploying successfully. The link itself is the existing Week 7 website until then.
+**Deployment status:** This README documents the Week 8 source code. The link
+above is the original Week 7 app until the tested Week 8 changes are merged
+to `main`, the Gemini API key is added to Streamlit Cloud Secrets, and an
+online end-to-end test confirms the new RAG interface.
 
 ### Architecture and AI API
 
@@ -182,7 +183,8 @@ read-only execution → result comparison with trusted SQL reference`
 3. Verify the vector index and run all tests:
 
    ```powershell
-   python scripts/check_rag_index.py
+   python -m scripts.check_rag_index
+   python scripts/check_reference_queries.py
    python -m pytest tests/ -v
    ```
 
@@ -199,7 +201,7 @@ read-only execution → result comparison with trusted SQL reference`
 
 ### Streamlit Cloud deployment
 
-1. Push and merge `week8-rag` into `main` only after testing.
+1. Test the `week8-finalize` branch locally, then merge its changes into `main` after all checks pass.
 2. Open Streamlit Cloud → your app → Settings → Secrets and add
    `GEMINI_API_KEY="..."` (and optionally `GEMINI_MODEL="gemini-2.5-flash"`).
 3. Existing Supabase secrets/credentials stay as configured. Restart/redeploy.
@@ -208,15 +210,34 @@ read-only execution → result comparison with trusted SQL reference`
 
 ### Evidence and screenshots
 
-Before submission capture and embed real screenshots (do not fabricate outputs):
+Before submission, capture authentic screenshots from the **deployed RAG app**:
 
-- `screenshots/rag_basic.png` — natural language question, real AI-generated SQL,
-  and retrieved-knowledge expander showing actual vector results.
-- `screenshots/rag_bonus.png` — generated SQL, automatically executed result table,
-  and a correct/incorrect validation status.
+- `screenshots/rag_basic.png` (REQUIRED): chosen Q5 natural-language question
+  and the full AI-generated SQL in one screenshot.
+- `screenshots/rag_retrieval.png` (recommended): expanded ChromaDB retrieval
+  results including knowledge IDs, distances and contextual text.
+- `screenshots/rag_bonus.png` (REQUIRED for extra credit): automatically executed
+  SQL result table plus the "Correct" validation outcome. Include the SQL above
+  the table where possible.
 
-After capturing, add links to those images in this README, commit, and verify
-that the images render on GitHub. Do not show any passwords, API keys or tokens.
+After saving these three actual screenshots, embed them here:
+
+    ![Basic RAG Question and SQL](screenshots/rag_basic.png)
+    ![Real ChromaDB Vector Retrieval](screenshots/rag_retrieval.png)
+    ![Automatic Execution and Validation](screenshots/rag_bonus.png)
+
+Do not add image links until the three PNG files have been committed, or they
+will appear broken on GitHub. Do not include account emails, credentials, keys,
+tokens, or secret configuration screens in any screenshot.
+
+**Grader access:** The existing website requires a Supabase Auth login.
+Confirm that a classmate can sign up/sign in and use RAG. If email confirmation
+is required, provide a working test account to the instructor privately through
+the course submission system; never publish its credentials in this repository.
+
+**Submission:** The course submission expects the repository URL, not the
+screenshots as separate attachments. The README must include the live working
+application URL, architecture/API explanation, local setup, and the screenshots.
 
 ### Automated checks
 

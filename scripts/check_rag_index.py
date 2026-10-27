@@ -1,4 +1,10 @@
 """Smoke test: real ChromaDB storage + similarity retrieval."""
+from pathlib import Path
+import sys
+
+# Also works with `python scripts/check_rag_index.py` from the project root.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from rag.vector_store import initialize_index, retrieve_context
 
 collection = initialize_index()

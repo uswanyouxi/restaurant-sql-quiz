@@ -1,7 +1,7 @@
 """RAG unit tests requiring no API key or online PostgreSQL connection."""
 from decimal import Decimal
 
-from rag.generator import build_prompt, clean_sql
+from rag.generator import build_prompt, clean_sql, format_sql_for_display
 from rag.knowledge import documents, EXAMPLE_QUESTIONS
 from rag.validation import compare_results, validate_against_reference
 
@@ -46,3 +46,11 @@ def test_validation_uses_reference_in_same_readonly_runner():
 
 def test_validation_skips_unknown_question():
     assert validate_against_reference(999, [], [], lambda _: None) is None
+
+
+def test_display_formatting_does_not_modify_executed_sql():
+    original_sql = "SELECT name, city FROM public.restaurants ORDER BY id;"
+    pretty = format_sql_for_display(original_sql)
+    assert "\\n" in pretty
+    assert "FROM public.restaurants" in pretty
+    assert original_sql == "SELECT name, city FROM public.restaurants ORDER BY id;"
