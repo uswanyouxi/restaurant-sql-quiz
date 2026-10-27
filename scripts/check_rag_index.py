@@ -1,4 +1,10 @@
 """Check real ChromaDB embedding storage and vector retrieval."""
+from pathlib import Path
+import sys
+
+# Support direct file execution and module execution.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from rag.vector_store import initialize_index, retrieve_context
 
 collection = initialize_index()
