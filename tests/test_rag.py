@@ -51,6 +51,6 @@ def test_validation_skips_unknown_question():
 def test_display_formatting_does_not_modify_executed_sql():
     original_sql = "SELECT name, city FROM public.restaurants ORDER BY id;"
     pretty = format_sql_for_display(original_sql)
-    assert "\\n" in pretty
+    assert "\n" in pretty
     assert "FROM public.restaurants" in pretty
     assert original_sql == "SELECT name, city FROM public.restaurants ORDER BY id;"
