@@ -7,7 +7,7 @@ from sqlparse import format as sqlparse_format
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
-DEFAULT_MODEL = "gemini-2.5-flash"
+DEFAULT_MODEL = "gemini-3.5-flash-lite"
 
 
 def get_api_key():
@@ -65,7 +65,7 @@ def generate_sql(question, retrieved, api_key=None, model=None):
         response = client.models.generate_content(
             model=model or os.getenv("GEMINI_MODEL", DEFAULT_MODEL),
             contents=build_prompt(question, retrieved),
-            config=types.GenerateContentConfig(temperature=0.0, max_output_tokens=700),
+            config=types.GenerateContentConfig(max_output_tokens=700),
         )
         sql = clean_sql(response.text)
     finally:

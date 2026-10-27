@@ -78,7 +78,7 @@ The Chroma index is stored locally in `.chroma/`, which is excluded from Git. On
 
 `rag/generator.py` uses the `google-genai` Python SDK to call **Google Gemini**. The prompt includes the user's natural-language question and the context retrieved from ChromaDB, with instructions to generate a single PostgreSQL `SELECT` query using the available restaurant tables.
 
-The model is configurable through `GEMINI_MODEL` (the code's default is `gemini-2.5-flash`). Model availability and API quotas depend on the Google AI project. No API keys are included in the repository.
+The model is configurable through `GEMINI_MODEL` (the code's default is `gemini-3.5-flash-lite`). Model availability and API quotas depend on the Google AI project. No API keys are included in the repository.
 
 ### Restaurant Database
 
@@ -195,7 +195,7 @@ QUIZ_DB_USER=YOUR_READ_ONLY_DATABASE_USER
 QUIZ_DB_PASSWORD=YOUR_READ_ONLY_DATABASE_PASSWORD
 
 GEMINI_API_KEY=YOUR_PRIVATE_GEMINI_KEY
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
 Create a Gemini API key using [Google AI Studio](https://aistudio.google.com/app/apikey). Set `GEMINI_MODEL` to a model available to your API project. Never commit `.env`, database passwords, tokens, or API keys.
@@ -256,7 +256,7 @@ The application is deployed from the GitHub **`main`** branch to Streamlit Commu
 
 **[Open the deployed RAG-powered SQL Quiz](https://restaurant-sql-quiz-8agvlli4ykngs9sc2piica.streamlit.app/)**
 
-The Streamlit application's **Settings → Secrets** must include the existing Supabase settings and the Gemini credentials (for example, `GEMINI_API_KEY` and `GEMINI_MODEL`). Do not include these real values in source control. After deployment, confirm that sign-in, vector retrieval, SQL generation, automatic execution and validation work from a separate browser session.
+The Streamlit application's **Settings → Secrets** must include the existing Supabase settings, `GEMINI_API_KEY`, and `GEMINI_MODEL = "gemini-3.5-flash-lite"` (TOML syntax). The local `.env` is not automatically deployed to Streamlit Cloud. Do not include real credentials in source control. After deployment, confirm that sign-in, vector retrieval, SQL generation, automatic execution and validation work from a separate browser session.
 
 ## Final RAG Demonstration Screenshots
 
