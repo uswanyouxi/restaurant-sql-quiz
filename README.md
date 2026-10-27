@@ -122,3 +122,127 @@ Deployment URL: https://restaurant-sql-quiz-8agvlli4ykngs9sc2piica.streamlit.app
 - Never commit `.env` or database passwords.
 - Use a restricted PostgreSQL user for student SQL queries.
 - Supabase authentication is required before executing or saving SQL.
+
+
+## Week 8: RAG-Powered Text-to-SQL
+
+This project extends the existing PostgreSQL SQL Quiz with a real retrieval-augmented
+SQL generator. The original sign-in, SQL editor, safe query runner and Save Answer
+features remain unchanged.
+
+### Live application
+
+[Deployed Streamlit website](https://restaurant-sql-quiz-8agvlli4ykngs9sc2piica.streamlit.app/)
+
+**Deployment status:** This README documents the Week 8 source code. The link
+above is the original Week 7 app until the tested Week 8 changes are merged
+to `main`, the Gemini API key is added to Streamlit Cloud Secrets, and an
+online end-to-end test confirms the new RAG interface.
+
+### Architecture and AI API
+
+`Natural-language question → ChromaDB vector similarity search → retrieved
+schema/rules/SQL examples → Gemini API → PostgreSQL SELECT SQL → optional automatic
+read-only execution → result comparison with trusted SQL reference`
+
+- PostgreSQL / Supabase stores the restaurant, menu, orders and quiz data.
+- ChromaDB is a **real vector database** that embeds and stores 10 knowledge
+  documents from `rag/knowledge.py` and retrieves relevant text with
+  `collection.query(query_texts=[...])`.
+- Chroma uses its default local embedding model; an ONNX model may be downloaded
+  on first initialization. `.chroma/` is local and ignored by Git. On cold cloud
+  start, `initialize_index()` recreates its vector collection from source files.
+- Google Gemini is called using the `google-genai` SDK and receives only the
+  user question plus the top five Chroma retrieval results.
+- `execute_quiz_sql()` executes generated SQL only after AST validation, as
+  `quiz_runner`, in a read-only transaction with time/row limits.
+- Bonus validation executes a predefined correct reference SELECT using the
+  **same restricted runner**, comparing column labels and normalized values.
+  It does not grant access to protected `expected_result` columns. Comparison
+  disregards physical result-row order and checks result-equivalence only.
+
+### Local setup
+
+1. Clone the repo, use Python 3.11, activate a virtual environment and install dependencies:
+
+   ```powershell
+   python -m pip install -r requirements.txt
+   ```
+
+2. Set up Supabase as described above. Add your own Gemini key locally to `.env`:
+
+   ```text
+   GEMINI_API_KEY=YOUR_PRIVATE_KEY
+   GEMINI_MODEL=gemini-2.5-flash
+   ```
+
+   Create a key in [Google AI Studio](https://aistudio.google.com/app/apikey).
+   **Never commit real keys or `.env`**. Billing and rate limits depend on your
+   model, project and account, not your ChatGPT subscription.
+
+3. Verify the vector index and run all tests:
+
+   ```powershell
+   python -m scripts.check_rag_index
+   python scripts/check_reference_queries.py
+   python -m pytest tests/ -v
+   ```
+
+4. Start the app and sign in with an existing account:
+
+   ```powershell
+   python -m streamlit run app.py
+   ```
+
+5. Choose an existing quiz question in the RAG section, click **Generate SQL
+   with RAG**, and examine the generated SQL and *Retrieved knowledge* expander.
+   The app automatically tries to execute generated SQL safely; for an unchanged
+   quiz question it compares the result with that question's trusted reference.
+
+### Streamlit Cloud deployment
+
+1. Test the `week8-finalize` branch locally, then merge its changes into `main` after all checks pass.
+2. Open Streamlit Cloud → your app → Settings → Secrets and add
+   `GEMINI_API_KEY="..."` (and optionally `GEMINI_MODEL="gemini-2.5-flash"`).
+3. Existing Supabase secrets/credentials stay as configured. Restart/redeploy.
+4. Test from a logged-out/incognito browser with a valid test login.
+5. Ensure the Supabase free project is not paused when it is graded.
+
+### Evidence and screenshots
+
+Before submission, capture authentic screenshots from the **deployed RAG app**:
+
+- `screenshots/rag_basic.png` (REQUIRED): chosen Q5 natural-language question
+  and the full AI-generated SQL in one screenshot.
+- `screenshots/rag_retrieval.png` (recommended): expanded ChromaDB retrieval
+  results including knowledge IDs, distances and contextual text.
+- `screenshots/rag_bonus.png` (REQUIRED for extra credit): automatically executed
+  SQL result table plus the "Correct" validation outcome. Include the SQL above
+  the table where possible.
+
+After saving these three actual screenshots, embed them here:
+
+    ![Basic RAG Question and SQL](screenshots/rag_basic.png)
+    ![Real ChromaDB Vector Retrieval](screenshots/rag_retrieval.png)
+    ![Automatic Execution and Validation](screenshots/rag_bonus.png)
+
+Do not add image links until the three PNG files have been committed, or they
+will appear broken on GitHub. Do not include account emails, credentials, keys,
+tokens, or secret configuration screens in any screenshot.
+
+**Grader access:** The existing website requires a Supabase Auth login.
+Confirm that a classmate can sign up/sign in and use RAG. If email confirmation
+is required, provide a working test account to the instructor privately through
+the course submission system; never publish its credentials in this repository.
+
+**Submission:** The course submission expects the repository URL, not the
+screenshots as separate attachments. The README must include the live working
+application URL, architecture/API explanation, local setup, and the screenshots.
+
+### Automated checks
+
+`tests/test_rag.py` tests knowledge creation, prompt grounding, SQL formatting,
+and result validation without contacting an AI API. The original 30 SQL-security
+tests remain intact. The smoke test in `scripts/check_rag_index.py` additionally
+checks real ChromaDB embedding, storage and similarity search.
+
